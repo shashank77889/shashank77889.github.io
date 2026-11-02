@@ -12,3 +12,28 @@ document.querySelectorAll('[data-case]').forEach(button=>button.addEventListener
 dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});
 dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open');lastTrigger?.focus();});
+
+// Motion stays optional and honors the visitor's system preference.
+const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
+const motionButton=document.querySelector('.motion-toggle');
+let manuallyPaused=false;
+function syncMotion(){
+ const paused=manuallyPaused||reducedMotion.matches;
+ document.body.classList.toggle('motion-paused',paused);
+ motionButton.setAttribute('aria-pressed',String(paused));
+ motionButton.innerHTML=paused?'Resume motion <span aria-hidden="true">▷</span>':'Pause motion <span aria-hidden="true">Ⅱ</span>';
+}
+motionButton.addEventListener('click',()=>{manuallyPaused=!manuallyPaused;syncMotion();});
+reducedMotion.addEventListener('change',syncMotion);
+syncMotion();
+if('IntersectionObserver' in window&&!reducedMotion.matches){
+ document.body.classList.add('reveal-ready');
+ const revealObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');revealObserver.unobserve(entry.target);}});},{threshold:0.06});
+ document.querySelectorAll('.section-heading,.case-study,.experience-row,.about-grid,.credentials-grid').forEach(section=>revealObserver.observe(section));
+}
+const progressIndicator=document.querySelector('.reading-progress');
+let progressPending=false;
+function updateProgress(){const scrollable=document.documentElement.scrollHeight-innerHeight;progressIndicator.style.width=(scrollable>0?Math.min(100,Math.max(0,scrollY/scrollable*100)):0)+'%';progressPending=false;}
+window.addEventListener('scroll',()=>{if(!progressPending){progressPending=true;requestAnimationFrame(updateProgress);}},{passive:true});
+window.addEventListener('resize',updateProgress);
+updateProgress();
