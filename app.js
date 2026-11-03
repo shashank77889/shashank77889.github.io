@@ -15,9 +15,9 @@ dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open'
 
 
 const modes={
- build:{title:'A request becomes\na useful response.',description:'Follow the request through Java application logic to persistent data.',input:['</>','React','Interface'],core:['{ }','Spring Boot','Application logic'],output:['▤','MySQL','Saved progress'],example:'CareerForge connects resume review, learning plans, and saved interview practice.',href:'#careerforge',link:'Explore CareerForge'},
- automate:{title:'A repeated task becomes\na workflow.',description:'Connect a monitoring need to reports and alerts.',input:['◇','Certificates','Validity & expiry'],core:['Py','Python','Automation workflows'],output:['↗','Alerts','Reports & monitoring'],example:'At CloudFabrix, I worked on SSL certificate monitoring using Python and the RDA Platform.',href:'#experience',link:'Explore the experience'},
- explain:{title:'A technical idea becomes\nsomething clear.',description:'Connect a concept to practical, usable learning material.',input:['?','Concept','Technical topic'],core:['</>','Examples','Code & execution steps'],output:['≡','Guide','Structured learning'],example:'My freelance SME work includes session guides, code examples, and technical review.',href:'#experience',link:'Explore the experience'}
+ build:{title:'API & persistence',description:'React client → Spring Boot API → MySQL database.',input:['</>','React','Interface'],core:['{ }','Spring Boot','Application logic'],output:['▤','MySQL','Saved progress'],example:'CareerForge connects resume review, learning plans, and saved interview practice.',href:'#careerforge',link:'Explore CareerForge'},
+ automate:{title:'Python automation',description:'SSL certificate monitoring, reports, and expiry alerts.',input:['◇','Certificates','Validity & expiry'],core:['Py','Python','Automation workflows'],output:['↗','Alerts','Reports & monitoring'],example:'At CloudFabrix, I worked on SSL certificate monitoring using Python and the RDA Platform.',href:'#experience',link:'Explore the experience'},
+ explain:{title:'Technical content',description:'Programming guides, code examples, and technical review.',input:['?','Concept','Technical topic'],core:['</>','Examples','Code & execution steps'],output:['≡','Guide','Structured learning'],example:'My freelance SME work includes session guides, code examples, and technical review.',href:'#experience',link:'Explore the experience'}
 };
 const workbench=document.querySelector('.workbench');
 const modeButtons=[...document.querySelectorAll('.mode-button')];
