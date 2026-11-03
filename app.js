@@ -28,3 +28,6 @@ document.querySelectorAll('.showcase').forEach(panel=>{
  panel.addEventListener('pointermove',event=>{if(event.pointerType!=='mouse'||motionPaused||reducedMotion.matches)return;const r=panel.getBoundingClientRect();panel.style.setProperty('--tilt-x',((.5-(event.clientY-r.top)/r.height)*2).toFixed(2)+'deg');panel.style.setProperty('--tilt-y',(((event.clientX-r.left)/r.width-.5)*2).toFixed(2)+'deg');});
  panel.addEventListener('pointerleave',()=>{panel.style.setProperty('--tilt-x','0deg');panel.style.setProperty('--tilt-y','0deg');});
 });
+
+const animationControl=document.querySelector('.animation-control');
+animationControl.addEventListener('click',()=>{motionPaused=!motionPaused;document.body.classList.toggle('motion-paused',motionPaused);animationControl.setAttribute('aria-pressed',String(motionPaused));animationControl.setAttribute('aria-label',motionPaused?'Resume animations':'Pause animations');animationControl.innerHTML=motionPaused?'Motion <span aria-hidden="true">▷</span>':'Motion <span aria-hidden="true">Ⅱ</span>';});
