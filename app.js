@@ -14,41 +14,8 @@ dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dial
 dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open');lastTrigger?.focus();});
 
 
-const modes={
- build:{title:'API & persistence',description:'React client → Spring Boot API → MySQL database.',input:['</>','React','Interface'],core:['{ }','Spring Boot','Application logic'],output:['▤','MySQL','Saved progress'],example:'CareerForge connects resume review, learning plans, and saved interview practice.',href:'#careerforge',link:'Explore CareerForge'},
- automate:{title:'Python automation',description:'SSL certificate monitoring, reports, and expiry alerts.',input:['◇','Certificates','Validity & expiry'],core:['Py','Python','Automation workflows'],output:['↗','Alerts','Reports & monitoring'],example:'At CloudFabrix, I worked on SSL certificate monitoring using Python and the RDA Platform.',href:'#experience',link:'Explore the experience'},
- explain:{title:'Technical content',description:'Programming guides, code examples, and technical review.',input:['?','Concept','Technical topic'],core:['</>','Examples','Code & execution steps'],output:['≡','Guide','Structured learning'],example:'My freelance SME work includes session guides, code examples, and technical review.',href:'#experience',link:'Explore the experience'}
-};
-const workbench=document.querySelector('.workbench');
-const modeButtons=[...document.querySelectorAll('.mode-button')];
-let modeAnimationTimer;
-function setMode(name){
- const mode=modes[name];if(!mode)return;
- workbench.dataset.mode=name;
- modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===name)));
- document.querySelector('#mode-title').textContent=mode.title;
- document.querySelector('#mode-description').textContent=mode.description;
- for(const node of ['input','core','output']){
-  document.querySelector('#node-symbol-'+node).textContent=mode[node][0];
-  document.querySelector('#node-'+node+'-title').textContent=mode[node][1];
-  document.querySelector('#node-'+node+'-sub').textContent=mode[node][2];
- }
- document.querySelector('#mode-example').textContent=mode.example;
- const link=document.querySelector('#mode-link');link.setAttribute('href',mode.href);link.textContent=mode.link+' ↗';
- workbench.classList.remove('mode-changing');
- requestAnimationFrame(()=>workbench.classList.add('mode-changing'));
- clearTimeout(modeAnimationTimer);modeAnimationTimer=setTimeout(()=>workbench.classList.remove('mode-changing'),650);
-}
-modeButtons.forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.mode)));
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
-const motionButton=document.querySelector('.motion-toggle');
 let motionPaused=false;
-function syncMotion(){
- const paused=motionPaused||reducedMotion.matches;document.body.classList.toggle('motion-paused',paused);
- motionButton.setAttribute('aria-pressed',String(paused));motionButton.textContent=paused?'Resume motion ▷':'Pause motion Ⅱ';
-}
-motionButton.addEventListener('click',()=>{motionPaused=!motionPaused;syncMotion();});
-reducedMotion.addEventListener('change',syncMotion);syncMotion();
 if('IntersectionObserver' in window&&!reducedMotion.matches){
  document.body.classList.add('reveal-ready');
  const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}}),{threshold:.05});
