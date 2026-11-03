@@ -13,69 +13,51 @@ dialog.querySelector('.dialog-close').addEventListener('click',()=>dialog.close(
 dialog.addEventListener('click',event=>{if(event.target===dialog){const box=dialog.getBoundingClientRect();if(event.clientX<box.left||event.clientX>box.right||event.clientY<box.top||event.clientY>box.bottom)dialog.close();}});
 dialog.addEventListener('close',()=>{document.body.classList.remove('modal-open');lastTrigger?.focus();});
 
-// Motion stays optional and honors the visitor's system preference.
-const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
-const motionButton=document.querySelector('.motion-toggle');
-let manuallyPaused=false;
-function syncMotion(){
- const paused=manuallyPaused||reducedMotion.matches;
- document.body.classList.toggle('motion-paused',paused);
- motionButton.setAttribute('aria-pressed',String(paused));
- motionButton.innerHTML=paused?'Resume motion <span aria-hidden="true">▷</span>':'Pause motion <span aria-hidden="true">Ⅱ</span>';
+
+const modes={
+ build:{title:'An idea becomes\nan application.',description:'Connect an interface, an API, and persistent data.',input:['</>','React','Interface'],core:['{ }','Spring Boot','Application logic'],output:['▤','MySQL','Saved progress'],example:'CareerForge connects resume review, learning plans, and saved interview practice.',href:'#careerforge',link:'Explore CareerForge'},
+ automate:{title:'A repeated task becomes\na workflow.',description:'Connect a monitoring need to reports and alerts.',input:['◇','Certificates','Validity & expiry'],core:['Py','Python','Automation workflows'],output:['↗','Alerts','Reports & monitoring'],example:'At CloudFabrix, I worked on SSL certificate monitoring using Python and the RDA Platform.',href:'#experience',link:'Explore the experience'},
+ explain:{title:'A technical idea becomes\nsomething clear.',description:'Connect a concept to practical, usable learning material.',input:['?','Concept','Technical topic'],core:['</>','Examples','Code & execution steps'],output:['≡','Guide','Structured learning'],example:'My freelance SME work includes session guides, code examples, and technical review.',href:'#experience',link:'Explore the experience'}
+};
+const workbench=document.querySelector('.workbench');
+const modeButtons=[...document.querySelectorAll('.mode-button')];
+let modeAnimationTimer;
+function setMode(name){
+ const mode=modes[name];if(!mode)return;
+ workbench.dataset.mode=name;
+ modeButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.mode===name)));
+ document.querySelector('#mode-title').textContent=mode.title;
+ document.querySelector('#mode-description').textContent=mode.description;
+ for(const node of ['input','core','output']){
+  document.querySelector('#node-symbol-'+node).textContent=mode[node][0];
+  document.querySelector('#node-'+node+'-title').textContent=mode[node][1];
+  document.querySelector('#node-'+node+'-sub').textContent=mode[node][2];
+ }
+ document.querySelector('#mode-example').textContent=mode.example;
+ const link=document.querySelector('#mode-link');link.setAttribute('href',mode.href);link.textContent=mode.link+' ↗';
+ workbench.classList.remove('mode-changing');
+ requestAnimationFrame(()=>workbench.classList.add('mode-changing'));
+ clearTimeout(modeAnimationTimer);modeAnimationTimer=setTimeout(()=>workbench.classList.remove('mode-changing'),650);
 }
-motionButton.addEventListener('click',()=>{manuallyPaused=!manuallyPaused;syncMotion();});
-reducedMotion.addEventListener('change',syncMotion);
-syncMotion();
+modeButtons.forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.mode)));
+const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
+const motionButton=document.querySelector('.motion-toggle');
+let motionPaused=false;
+function syncMotion(){
+ const paused=motionPaused||reducedMotion.matches;document.body.classList.toggle('motion-paused',paused);
+ motionButton.setAttribute('aria-pressed',String(paused));motionButton.textContent=paused?'Resume motion ▷':'Pause motion Ⅱ';
+}
+motionButton.addEventListener('click',()=>{motionPaused=!motionPaused;syncMotion();});
+reducedMotion.addEventListener('change',syncMotion);syncMotion();
 if('IntersectionObserver' in window&&!reducedMotion.matches){
  document.body.classList.add('reveal-ready');
- const revealObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');revealObserver.unobserve(entry.target);}});},{threshold:0.06});
- document.querySelectorAll('.section-heading,.case-study,.experience-row,.about-grid,.credentials-grid').forEach(section=>revealObserver.observe(section));
+ const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target);}}),{threshold:.05});
+ document.querySelectorAll('.section-heading,.case-study,.experience-row,.about-grid,.credentials-grid').forEach(element=>observer.observe(element));
 }
-const progressIndicator=document.querySelector('.reading-progress');
-let progressPending=false;
-function updateProgress(){const scrollable=document.documentElement.scrollHeight-innerHeight;progressIndicator.style.width=(scrollable>0?Math.min(100,Math.max(0,scrollY/scrollable*100)):0)+'%';progressPending=false;}
-window.addEventListener('scroll',()=>{if(!progressPending){progressPending=true;requestAnimationFrame(updateProgress);}},{passive:true});
-window.addEventListener('resize',updateProgress);
-updateProgress();
-
-// Reference-inspired introduction, using only roles grounded in the portfolio.
-const roleElement=document.querySelector('.typed-role');
-const roleNames=['full-stack development','Python automation','technical content'];
-let roleIndex=0,letterIndex=roleNames[0].length,erasing=false,roleTimer;
-function typeRole(){
- if(document.hidden||manuallyPaused||reducedMotion.matches){roleTimer=setTimeout(typeRole,300);return;}
- const role=roleNames[roleIndex];
- if(erasing){letterIndex=Math.max(0,letterIndex-1);}else{letterIndex=Math.min(role.length,letterIndex+1);}
- roleElement.textContent=role.slice(0,letterIndex);
- let delay=erasing?35:65;
- if(!erasing&&letterIndex===role.length){erasing=true;delay=2200;}
- else if(erasing&&letterIndex===0){erasing=false;roleIndex=(roleIndex+1)%roleNames.length;delay=350;}
- roleTimer=setTimeout(typeRole,delay);
-}
-roleTimer=setTimeout(typeRole,2200);
-const header=document.querySelector('.site-header');
-function syncHeader(){header.classList.toggle('nav-scrolled',scrollY>40);}
-window.addEventListener('scroll',syncHeader,{passive:true});syncHeader();
-const navLinks=[...document.querySelectorAll('.site-header nav a')];
-if('IntersectionObserver' in window){
- const navObserver=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){navLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+entry.target.id));}});},{rootMargin:'-15% 0px -65% 0px'});
- document.querySelectorAll('main section[id]').forEach(section=>navObserver.observe(section));
-}
-// Light atmospheric particles: pause when requested or when the page is hidden.
-const atmosphere=document.querySelector('.atmosphere');
-const context=atmosphere.getContext('2d');
-let canvasWidth=0,canvasHeight=0,lastFrame=0;
-let particles=[];
-function sizeAtmosphere(){
- const rect=atmosphere.getBoundingClientRect();canvasWidth=rect.width;canvasHeight=rect.height;
- const ratio=Math.min(devicePixelRatio||1,1.5);atmosphere.width=Math.round(canvasWidth*ratio);atmosphere.height=Math.round(canvasHeight*ratio);context.setTransform(ratio,0,0,ratio,0,0);
- particles=Array.from({length:28},()=>({x:Math.random()*canvasWidth,y:Math.random()*canvasHeight,r:.5+Math.random(),speed:.12+Math.random()*.24,opacity:.1+Math.random()*.25}));
-}
-sizeAtmosphere();window.addEventListener('resize',sizeAtmosphere);
-function drawAtmosphere(time){
- requestAnimationFrame(drawAtmosphere);
- if(document.hidden||manuallyPaused||reducedMotion.matches||time-lastFrame<33)return;
- lastFrame=time;context.clearRect(0,0,canvasWidth,canvasHeight);
- particles.forEach(p=>{p.y-=p.speed;p.x+=Math.sin(time*.0003+p.y)*.05;if(p.y<0)p.y=canvasHeight;context.beginPath();context.arc(p.x,p.y,p.r,0,Math.PI*2);context.fillStyle='rgba(233,194,143,'+p.opacity+')';context.fill();});
-}
-requestAnimationFrame(drawAtmosphere);
+const progress=document.querySelector('.reading-progress');let framePending=false;
+function updateProgress(){const distance=document.documentElement.scrollHeight-innerHeight;progress.style.width=(distance>0?Math.min(100,scrollY/distance*100):0)+'%';framePending=false;}
+window.addEventListener('scroll',()=>{if(!framePending){framePending=true;requestAnimationFrame(updateProgress);}},{passive:true});window.addEventListener('resize',updateProgress);updateProgress();
+document.querySelectorAll('.showcase').forEach(panel=>{
+ panel.addEventListener('pointermove',event=>{if(event.pointerType!=='mouse'||motionPaused||reducedMotion.matches)return;const r=panel.getBoundingClientRect();panel.style.setProperty('--tilt-x',((.5-(event.clientY-r.top)/r.height)*2).toFixed(2)+'deg');panel.style.setProperty('--tilt-y',(((event.clientX-r.left)/r.width-.5)*2).toFixed(2)+'deg');});
+ panel.addEventListener('pointerleave',()=>{panel.style.setProperty('--tilt-x','0deg');panel.style.setProperty('--tilt-y','0deg');});
+});
